@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Point of Sales - Calculator</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        body {
+          	margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        .container input, .container select, .container button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .container button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+          	border-radius: 20px;
+        }
+        .container button:hover {
+            background-color: #45a049;
+        }
+        .container label {
+            font-weight: bold;
+        }
+        h2 {
+            text-align: center;
+        }
+        h3 {
+            text-align: center;
+            margin-top: 0; /* No margin at the top of subheader */
+            margin-bottom: 20px; /* Space after subheader */
+            font-weight: normal; /* Normal weight for subheader */
+            font-size: 16px; /* Smaller font size for subheader */
+            color: #555; /* Gray color for subheader */
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .button-container button {
+            width: auto;
+        }
+    </style>
+    <script>
+        function computeDiscount() {
+            const totalPayment = parseFloat(document.getElementById('totalPayment').value);
+            const transactionType = document.getElementById('transactionType').value;
+
+          	if (transactionType === "") {
+                alert("Please select a transaction type.");
+                return;
+            }
+          
+            let netOfVat = totalPayment / 1.12;
+            let vat = totalPayment - netOfVat;
+            let vatableSales = netOfVat;
+            let vatExemptSales = 0;
+            let discount = 0;
+          	let amountDue1 = netOfVat - discount;
+          	let addVAT = totalPayment - netOfVat;
+            let amountDue = totalPayment;
+
+            if (transactionType === "discounted") {
+              	vatableSales = 0;
+                vatExemptSales = netOfVat;
+                discount = vatExemptSales * 0.20;
+              	amountDue1 = vatExemptSales - discount;
+              	addVAT = 0;
+                amountDue = vatExemptSales - discount;
+            } else if (transactionType === "discEWT"){
+            	vatableSales = netOfVat;
+                vatExemptSales = 0;
+                discount = netOfVat * 0.02;
+              	amountDue1 = vatableSales - discount;
+              	addVAT = totalPayment - netOfVat;
+                amountDue = amountDue1 + addVAT;
+            }
+
+            document.getElementById('netOfVat').value = netOfVat.toFixed(2);
+            document.getElementById('vat').value = vat.toFixed(2);
+            document.getElementById('vatableSales').value = vatableSales.toFixed(2);
+            document.getElementById('vatExemptSales').value = vatExemptSales.toFixed(2);
+            document.getElementById('discount').value = discount.toFixed(2);
+            document.getElementById('amountDue').value = amountDue.toFixed(2);
+          	document.getElementById('amountDue1').value = amountDue1.toFixed(2);
+          	document.getElementById('addVAT').value = addVAT.toFixed(2);
+        }
+      
+      function resetFields() {
+            document.getElementById('totalPayment').value = '';
+            document.getElementById('vat').value = '';
+            document.getElementById('netOfVat').value = '';
+            document.getElementById('vatableSales').value = '';
+            document.getElementById('vatExemptSales').value = '';
+            document.getElementById('discount').value = '';
+            document.getElementById('amountDue').value = '';
+        	document.getElementById('amountDue1').value = '';
+          	document.getElementById('addVAT').value = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('transactionType').addEventListener('change', resetFields);
+        });
+    </script>
+  
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('https://github.com/kminer-crypto/sw-service-worker/sw.js')
+        .then(registration => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Service Worker registration failed:', error);
+        });
+    });
+  }
+</script>
+
+  
+</head>
+<body>
+    <div class="container">
+        <h2>Point of Sales - Calculator</h2>
+      	<h3>Use for Solo Transaction only.</h3>
+        
+        <label for="transactionType">Transaction Type:</label>
+        <select id="transactionType">
+          	<option value="" disabled selected>Choose Transaction</option>
+            <option value="regular">Regular</option>
+            <option value="discounted">SC/PWD Discount</option>
+          	<option value="discEWT">EWT Discount</option>
+        </select>
+        
+        <label for="totalPayment">Total Sales (VAT Inclusive):</label>
+        <input type="number" id="totalPayment" placeholder="Enter total payment">
+        
+      	<button onclick="computeDiscount()">Calculate</button>
+      
+        <label for="vat">Less: VAT</label>
+        <input type="number" id="vat" readonly>
+        
+        <label for="netOfVat">Amount: Net of VAT</label>
+        <input type="number" id="netOfVat" readonly>
+        
+        <label for="vatableSales">VATable Sales:</label>
+        <input type="number" id="vatableSales" readonly>
+        
+        <label for="vatExemptSales">VAT-Exempt Sales:</label>
+        <input type="number" id="vatExemptSales" readonly>
+        
+        <label for="discount">Less: SC/PWD/EWT Discount:</label>
+        <input type="number" id="discount" readonly>
+        
+      	<label for="amountDue1">Amount Due:</label>
+        <input type="number" id="amountDue1" readonly>
+      
+      	<label for="addVAT">Add: VAT</label>
+        <input type="number" id="addVAT" readonly>
+      
+        <label for="amountDue">Total Amount Due:</label>
+        <input type="number" id="amountDue" readonly>
+        
+    </div>
+</body>
+</html>
